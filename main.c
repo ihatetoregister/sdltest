@@ -1,6 +1,21 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
+
+struct system {
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    int wHeight;
+    int wWidth;
+};
+
+struct system gSystem;
+
+struct player {
+    int x;
+    int y;
+} gPlayer;
+
 void check_error(int error, const char *message) {
     if(error) {
         printf("ERROR: ");
@@ -9,42 +24,44 @@ void check_error(int error, const char *message) {
     }
 }
 
-
-
-int main(void) {
-    printf("Hello SDL!\n");
-
+void setup() {
+    printf("SDL init\n");
     check_error(SDL_Init(SDL_INIT_VIDEO) != 0, "Unable to initialize SDL");
 
-    SDL_Window *window = SDL_CreateWindow("Test window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-    check_error(window == NULL, "Unable to create window");
+    gSystem.window = SDL_CreateWindow("Test window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 480, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_OPENGL);
+    check_error(gSystem.window == NULL, "Unable to create window");
+    SDL_GetWindowSize(gSystem.window, &gSystem.wWidth, &gSystem.wHeight);
 
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    check_error(renderer == NULL, "Unable to create a renderer");
+    printf("Window: w = %d, h = %d\n", gSystem.wWidth, gSystem.wHeight);
 
-    SDL_SetRenderDrawColor(renderer, 100, 149, 237, 255);
+    gSystem.renderer = SDL_CreateRenderer(gSystem.window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    check_error(gSystem.renderer == NULL, "Unable to create a renderer");
+}
 
-    SDL_RenderClear(renderer);
-    //SDL_RenderPresent(renderer);
-
+void redraw() {
     // Draw rectangle
-    // Rectangle
     SDL_Rect rect;
-    rect.x = 10;
-    rect.y = 10;
-    rect.w = 50;
+    rect.x = gPlayer.x;
+    rect.y = gPlayer.y;
+    rect.w = 25;
     rect.h = 25;
 
-    SDL_SetRenderDrawColor(renderer, 50, 100, 25, 255);
-    SDL_RenderFillRect(renderer,  &rect);
-    //SDL_RenderPresent(renderer);
+    SDL_SetRenderDrawColor(gSystem.renderer, 50, 100, 25, 255);
+    SDL_RenderFillRect(gSystem.renderer,  &rect);
+    SDL_RenderPresent(gSystem.renderer);
+}
+
+int main(void) {
+
+    setup();
 
     //SDL_Delay(10000);
 
     // Event loop
     SDL_Event event;
     SDL_bool done = SDL_FALSE;
-    while(SDL_WaitEvent(&event) && (done == SDL_FALSE)) {
+
+    while((done == SDL_FALSE) && SDL_WaitEvent(&event)) {
         printf("Polling event\n");
         switch(event.type) {
         case SDL_KEYDOWN:
@@ -61,19 +78,29 @@ int main(void) {
         //SDL Unsupported: Raspberry pi touch screen
         case 1792:
             printf("Touch pressed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
+            gPlayer.x = gSystem.wWidth * event.tfinger.x;
+            gPlayer.y = gSystem.wHeight * event.tfinger.y;
+            redraw();
             break;
         case 1793:
             printf("Touch relaseed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
+            gPlayer.x = gSystem.wWidth * event.tfinger.x;
+            gPlayer.y = gSystem.wHeight * event.tfinger.y;
+            redraw();
             break;
         case 1794:
             printf("Touch drag: : (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
+            gPlayer.x = gSystem.wWidth * event.tfinger.x;
+            gPlayer.y = gSystem.wHeight * event.tfinger.y;
+            redraw();
             break;
         default:
             printf("Unknown event type (%d)\n", event.type);
         }
         //SDL_Delay(10);
     }
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+
+    SDL_DestroyRenderer(gSystem.renderer);
+    SDL_DestroyWindow(gSystem.window);
     SDL_Quit(); 
 }
