@@ -42,7 +42,7 @@ void setup() {
 
 void update() {
     gPlayer.x = rand() % (gSystem.wWidth - gPlayer.size);
-    gPlayer.y = rand() % (gSystem.wWidth - gPlayer.size);
+    gPlayer.y = rand() % (gSystem.wHeight - gPlayer.size);
 }
 
 void redraw() {
