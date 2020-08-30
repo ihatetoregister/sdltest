@@ -15,7 +15,8 @@ struct system gSystem;
 struct player {
     int x;
     int y;
-} gPlayer;
+    int size;
+} gPlayer = {0, 0, 50};
 
 void check_error(int error, const char *message) {
     if(error) {
@@ -40,8 +41,8 @@ void setup() {
 }
 
 void update() {
-    gPlayer.x += 1;
-    gPlayer.y += 1;
+    gPlayer.x = rand() % gSystem.wWidth;
+    gPlayer.y = rand() % gSystem.wWidth;
 }
 
 void redraw() {
@@ -49,32 +50,51 @@ void redraw() {
     SDL_Rect rect;
     rect.x = gPlayer.x;
     rect.y = gPlayer.y;
-    rect.w = 25;
-    rect.h = 25;
+    rect.w = gPlayer.size;
+    rect.h = gPlayer.size;
 
-    SDL_SetRenderDrawColor(gSystem.renderer, 50, 100, 25, 255);
+    // Clear screen
+    SDL_SetRenderDrawColor(gSystem.renderer, 10, 10, 100, 255);
+    SDL_RenderClear(gSystem.renderer);
+    
+    // Render player
+    SDL_SetRenderDrawColor(gSystem.renderer, 10, 100, 10, 255);
     SDL_RenderFillRect(gSystem.renderer,  &rect);
     SDL_RenderPresent(gSystem.renderer);
 }
 
-int main(void) {
+SDL_bool testCollision(int x, int y) {
+    printf("Test collision\n");
+    
+    // Check player
+    if ((x >= gPlayer.x) && (x <= (gPlayer.x + gPlayer.size))) {
+        if ((y >= gPlayer.y) && (y <= (gPlayer.y + gPlayer.size))) {
+            return SDL_TRUE;
+        }
+    }
+    return SDL_FALSE;
+}
 
-    printf("Hej!\n");
+int main(void) {
 
     setup();
 
-    SDL_Delay(5000);
+    //SDL_Delay(5000);
 
     // Event loop
     SDL_Event event;
     SDL_bool done = SDL_FALSE;
 
     while(done == SDL_FALSE) {
-        printf("Polling event\n");
+        //printf("Polling event\n");
 
         if(SDL_PollEvent(&event)) {
 
             switch(event.type) {
+                case SDL_QUIT:
+                    done = SDL_TRUE;
+                    printf("SDL_QUIT\n");
+                    break;
                 case SDL_KEYDOWN:
                     printf("Key pressed\n");
                     if(event.key.keysym.sym == SDLK_ESCAPE) {
@@ -84,10 +104,9 @@ int main(void) {
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     printf("Mouse button pressed\n");
-                    break;
-                case SDL_QUIT:
-                    done = SDL_TRUE;
-                    printf("SDL_QUIT\n");
+                    if (testCollision(event.button.x, event.button.y)) {
+                        update();
+                    }
                     break;
                 //SDL Unsupported: Raspberry pi touch screen
                 case 1792:
@@ -110,10 +129,10 @@ int main(void) {
             }
         }
 
-        update();
+        //update();
         redraw();
 
-        SDL_Delay(10);
+        SDL_Delay(100);
     }
 
     SDL_DestroyRenderer(gSystem.renderer);
