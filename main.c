@@ -111,7 +111,7 @@ int main(void) {
                 //SDL Unsupported: Raspberry pi touch screen
                 case 1792:
                     printf("Touch pressed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                    if (testCollision(event.button.x, event.button.y)) {
+                    if (testCollision(gSystem.wWidth * event.tfinger.x, gSystem.wWidth * event.tfinger.y)) {
                         update();
                     }
                     break;
