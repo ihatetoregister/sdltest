@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
+// New file
 
 struct system {
     SDL_Window *window;
@@ -68,7 +69,7 @@ int main(void) {
 
     while(done == SDL_FALSE) {
         printf("Polling event\n");
-        
+
         if(SDL_PollEvent(&event)) {
 
             switch(event.type) {
@@ -91,8 +92,8 @@ int main(void) {
                 break;
             case 1793:
                 printf("Touch relaseed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                gPlayer.x = gSystem.wWidth * event.tfinger.x;
-                gPlayer.y = gSystem.wHeight * event.tfinger.y;
+                //gPlayer.x = gSystem.wWidth * event.tfinger.x;
+                //gPlayer.y = gSystem.wHeight * event.tfinger.y;
                 break;
             case 1794:
                 printf("Touch drag: : (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
