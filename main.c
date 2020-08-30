@@ -59,9 +59,11 @@ void redraw() {
 
 int main(void) {
 
+    printf("Hej!\n");
+
     setup();
 
-    //SDL_Delay(10000);
+    SDL_Delay(5000);
 
     // Event loop
     SDL_Event event;
@@ -113,5 +115,5 @@ int main(void) {
 
     SDL_DestroyRenderer(gSystem.renderer);
     SDL_DestroyWindow(gSystem.window);
-    SDL_Quit(); 
+    SDL_Quit();
 }
