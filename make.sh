@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo Fetching latest source...
+#echo Fetching latest source...
 
-git pull
+#git pull
 
 echo Compiling...
 gcc -lSDL2 main.c -o main

@@ -75,35 +75,38 @@ int main(void) {
         if(SDL_PollEvent(&event)) {
 
             switch(event.type) {
-            case SDL_KEYDOWN:
-                printf("Key pressed\n");
+                case SDL_KEYDOWN:
+                    printf("Key pressed\n");
                     if(event.key.keysym.sym == SDLK_ESCAPE) {
                         done = SDL_TRUE;
                         printf("Escape received, quitting!\n");
                     }
-                break;
-            case SDL_QUIT:
-                done = SDL_TRUE;
-                printf("SDL_QUIT\n");
-                break;
-            //SDL Unsupported: Raspberry pi touch screen
-            case 1792:
-                printf("Touch pressed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                gPlayer.x = gSystem.wWidth * event.tfinger.x;
-                gPlayer.y = gSystem.wHeight * event.tfinger.y;
-                break;
-            case 1793:
-                printf("Touch relaseed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                //gPlayer.x = gSystem.wWidth * event.tfinger.x;
-                //gPlayer.y = gSystem.wHeight * event.tfinger.y;
-                break;
-            case 1794:
-                printf("Touch drag: : (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                gPlayer.x = gSystem.wWidth * event.tfinger.x;
-                gPlayer.y = gSystem.wHeight * event.tfinger.y;
-                break;
-            default:
-                printf("Unknown event type (%d)\n", event.type);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    printf("Mouse button pressed\n");
+                    break;
+                case SDL_QUIT:
+                    done = SDL_TRUE;
+                    printf("SDL_QUIT\n");
+                    break;
+                //SDL Unsupported: Raspberry pi touch screen
+                case 1792:
+                    printf("Touch pressed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
+                    gPlayer.x = gSystem.wWidth * event.tfinger.x;
+                    gPlayer.y = gSystem.wHeight * event.tfinger.y;
+                    break;
+                case 1793:
+                    printf("Touch relaseed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
+                    //gPlayer.x = gSystem.wWidth * event.tfinger.x;
+                    //gPlayer.y = gSystem.wHeight * event.tfinger.y;
+                    break;
+                case 1794:
+                    printf("Touch drag: : (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
+                    gPlayer.x = gSystem.wWidth * event.tfinger.x;
+                    gPlayer.y = gSystem.wHeight * event.tfinger.y;
+                    break;
+                default:
+                    printf("Unknown event type (%d)\n", event.type);
             }
         }
 
