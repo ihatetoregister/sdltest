@@ -111,8 +111,9 @@ int main(void) {
                 //SDL Unsupported: Raspberry pi touch screen
                 case 1792:
                     printf("Touch pressed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                    gPlayer.x = gSystem.wWidth * event.tfinger.x;
-                    gPlayer.y = gSystem.wHeight * event.tfinger.y;
+                    if (testCollision(event.button.x, event.button.y)) {
+                        update();
+                    }
                     break;
                 case 1793:
                     printf("Touch relaseed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
@@ -121,8 +122,8 @@ int main(void) {
                     break;
                 case 1794:
                     printf("Touch drag: : (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                    gPlayer.x = gSystem.wWidth * event.tfinger.x;
-                    gPlayer.y = gSystem.wHeight * event.tfinger.y;
+                    //gPlayer.x = gSystem.wWidth * event.tfinger.x;
+                    //gPlayer.y = gSystem.wHeight * event.tfinger.y;
                     break;
                 default:
                     printf("Unknown event type (%d)\n", event.type);
