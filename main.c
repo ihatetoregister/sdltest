@@ -3,20 +3,31 @@
 
 // New file
 
-struct system {
+struct System {
     SDL_Window *window;
     SDL_Renderer *renderer;
     int wHeight;
     int wWidth;
 };
 
-struct system gSystem;
+struct System gSystem;
 
-struct player {
+struct Player {
     int x;
     int y;
     int size;
-} gPlayer = {0, 0, 50};
+    SDL_bool dirty;
+} gPlayer = {0, 0, 50, SDL_FALSE};
+
+int gPlayerCountMax = 1000;
+struct Player gPlayers[1000];
+int gPlayerCount = 1;
+
+
+struct Player createRandomPlayer() {
+    struct Player p = {rand() % (gSystem.wWidth - gPlayer.size), rand() % (gSystem.wHeight - gPlayer.size), 50, SDL_FALSE};
+    return p;
+}
 
 void check_error(int error, const char *message) {
     if(error) {
@@ -41,36 +52,56 @@ void setup() {
 }
 
 void update() {
-    gPlayer.x = rand() % (gSystem.wWidth - gPlayer.size);
-    gPlayer.y = rand() % (gSystem.wHeight - gPlayer.size);
+    for (int i=0; i < gPlayerCount; i++) {
+        if (gPlayers[i].dirty) {
+            gPlayers[i] = createRandomPlayer();
+        }
+    }
+    
+    if (gPlayerCount < gPlayerCountMax) {
+        gPlayers[gPlayerCount] = createRandomPlayer();
+        gPlayerCount += 1;
+    }
 }
 
 void redraw() {
-    // Draw rectangle
-    SDL_Rect rect;
-    rect.x = gPlayer.x;
-    rect.y = gPlayer.y;
-    rect.w = gPlayer.size;
-    rect.h = gPlayer.size;
-
+    
     // Clear screen
     SDL_SetRenderDrawColor(gSystem.renderer, 10, 10, 100, 255);
     SDL_RenderClear(gSystem.renderer);
     
-    // Render player
-    SDL_SetRenderDrawColor(gSystem.renderer, 10, 100, 10, 255);
-    SDL_RenderFillRect(gSystem.renderer,  &rect);
+    // Render players
+    for (int i=0; i<gPlayerCount; i++) {
+        SDL_Rect rect;
+        rect.x = gPlayers[i].x;
+        rect.y = gPlayers[i].y;
+        rect.w = gPlayers[i].size;
+        rect.h = gPlayers[i].size;
+        
+        SDL_SetRenderDrawColor(gSystem.renderer, 10, 100, 10, 255);
+        SDL_RenderFillRect(gSystem.renderer,  &rect);
+    }
+    
     SDL_RenderPresent(gSystem.renderer);
 }
 
-SDL_bool testCollision(int x, int y) {
+SDL_bool testCollision(struct Player *p, int x, int y) {
     printf("Test collision\n");
     
     // Check player
-    if ((x >= gPlayer.x) && (x <= (gPlayer.x + gPlayer.size))) {
-        if ((y >= gPlayer.y) && (y <= (gPlayer.y + gPlayer.size))) {
+    if ((x >= p->x) && (x <= (p->x + p->size))) {
+        if ((y >= p->y) && (y <= (p->y + p->size))) {
+            p->dirty = SDL_TRUE;
             return SDL_TRUE;
         }
+    }
+    return SDL_FALSE;
+}
+
+SDL_bool testCollisions(int x, int y) {
+    for (int i=0; i<gPlayerCount; i++) {
+        if (testCollision(&gPlayers[i], x, y))
+            return SDL_TRUE;
     }
     return SDL_FALSE;
 }
@@ -78,7 +109,9 @@ SDL_bool testCollision(int x, int y) {
 int main(void) {
 
     setup();
-
+    
+    gPlayers[0] = gPlayer;
+    
     //SDL_Delay(5000);
 
     // Event loop
@@ -104,14 +137,14 @@ int main(void) {
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     printf("Mouse button pressed\n");
-                    if (testCollision(event.button.x, event.button.y)) {
+                    if (testCollisions(event.button.x, event.button.y)) {
                         update();
                     }
                     break;
                 //SDL Unsupported: Raspberry pi touch screen
                 case 1792:
                     printf("Touch pressed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                    if (testCollision(gSystem.wWidth * event.tfinger.x, gSystem.wHeight * event.tfinger.y)) {
+                    if (testCollisions(gSystem.wWidth * event.tfinger.x, gSystem.wHeight * event.tfinger.y)) {
                         update();
                     }
                     break;
