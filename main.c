@@ -15,6 +15,7 @@ struct Player {
     int x;
     int y;
     int size;
+    SDL_Color c;
     SDL_bool dirty;
 } gPlayer = {0, 0, 50, SDL_FALSE};
 
@@ -23,8 +24,18 @@ struct Player gPlayers[1000];
 int gPlayerCount = 1;
 
 
+SDL_Color randomColor() {
+    SDL_Color c = {.r = rand() % 255, .g = rand() % 255, .b = rand() % 255, .a = 255};
+    return c;
+}
+
 struct Player createRandomPlayer() {
-    struct Player p = {.x = rand() % (gSystem.wWidth - gPlayer.size), .y = rand() % (gSystem.wHeight - gPlayer.size), .size = 50, .dirty = SDL_FALSE};
+    struct Player p = {
+        .x = rand() % (gSystem.wWidth - gPlayer.size),
+        .y = rand() % (gSystem.wHeight - gPlayer.size),
+        .size = 50,
+        .c = randomColor(),
+        .dirty = SDL_FALSE};
     return p;
 }
 
@@ -77,7 +88,7 @@ void redraw() {
         rect.w = gPlayers[i].size;
         rect.h = gPlayers[i].size;
         
-        SDL_SetRenderDrawColor(gSystem.renderer, 10, 100, 10, 255);
+        SDL_SetRenderDrawColor(gSystem.renderer, gPlayers[i].c.r, gPlayers[i].c.g, gPlayers[i].c.b, gPlayers[i].c.a);
         SDL_RenderFillRect(gSystem.renderer,  &rect);
     }
     
