@@ -17,11 +17,11 @@ struct Player {
     int size;
     SDL_Color c;
     SDL_bool dirty;
-} gPlayer = {0, 0, 50, SDL_FALSE};
+};
 
-int gPlayerCountMax = 1000;
-struct Player gPlayers[1000];
-int gPlayerCount = 1;
+int gPlayerCountMax = 10;
+struct Player gPlayers[10];
+int gPlayerCount = 0;
 
 
 SDL_Color randomColor() {
@@ -30,10 +30,12 @@ SDL_Color randomColor() {
 }
 
 struct Player createRandomPlayer() {
+    int size = 50;
+    
     struct Player p = {
-        .x = rand() % (gSystem.wWidth - gPlayer.size),
-        .y = rand() % (gSystem.wHeight - gPlayer.size),
-        .size = 50,
+        .x = rand() % (gSystem.wWidth - size),
+        .y = rand() % (gSystem.wHeight - size),
+        .size = size,
         .c = randomColor(),
         .dirty = SDL_FALSE};
     return p;
@@ -61,8 +63,19 @@ void setup() {
     check_error(gSystem.renderer == NULL, "Unable to create a renderer");
 }
 
+void checkScreenBorders(struct Player *p) {
+    if ((p->x > gSystem.wWidth) || (p->x < 0))
+        p->dirty = SDL_TRUE;
+    
+    if ((p->y > gSystem.wHeight) || (p->y < 0))
+        p->dirty = SDL_TRUE;
+}
+
 void update() {
     for (int i=0; i < gPlayerCount; i++) {
+        gPlayers[i].y += 1;
+        checkScreenBorders(&gPlayers[i]);
+        
         if (gPlayers[i].dirty) {
             gPlayers[i] = createRandomPlayer();
         }
@@ -75,7 +88,6 @@ void update() {
 }
 
 void redraw() {
-    
     // Clear screen
     SDL_SetRenderDrawColor(gSystem.renderer, 10, 10, 100, 255);
     SDL_RenderClear(gSystem.renderer);
@@ -120,7 +132,8 @@ int main(void) {
 
     setup();
     
-    gPlayers[0] = gPlayer;
+    gPlayers[0] = createRandomPlayer();
+    gPlayerCount++;
     
     //SDL_Delay(5000);
 
@@ -147,16 +160,12 @@ int main(void) {
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 printf("Mouse button pressed\n");
-                if (testCollisions(event.button.x, event.button.y)) {
-                    update();
-                }
+                testCollisions(event.button.x, event.button.y);
                 break;
             //SDL Unsupported: Raspberry pi touch screen
             case 1792:
                 printf("Touch pressed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
-                if (testCollisions(gSystem.wWidth * event.tfinger.x, gSystem.wHeight * event.tfinger.y)) {
-                    update();
-                }
+                testCollisions(gSystem.wWidth * event.tfinger.x, gSystem.wHeight * event.tfinger.y);
                 break;
             case 1793:
                 printf("Touch relaseed: (x = %f, y = %f)\n", event.tfinger.x, event.tfinger.y);
@@ -173,7 +182,7 @@ int main(void) {
             }
         }
 
-        //update();
+        update();
         redraw();
 
         SDL_Delay(10);
